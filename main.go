@@ -11,7 +11,8 @@ func main() {
 	mux := http.NewServeMux()
 	
 	//Serve index.html
-	mux.Handle("/", http.FileServer(http.Dir("./public")))
+	filepathRoot := "."
+	mux.Handle("/", http.FileServer(http.Dir(filepathRoot)))
 
 	corsMux := middlewareCors(mux)
 
@@ -19,7 +20,6 @@ func main() {
 		Addr:    ":" + port,
 		Handler: corsMux,
 	}
-
 	
 	log.Printf("Serving on port: %s\n", port)
 	log.Fatal(srv.ListenAndServe())
