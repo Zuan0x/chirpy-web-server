@@ -11,9 +11,6 @@ type apiConfig struct {
 }
 
 func main() {
-	r := chi.NewRouter()
-
-
 	const filepathRoot = "./app"
 	const port = "8080"
 
@@ -21,15 +18,20 @@ func main() {
 		fileserverHits: 0,
 	}
 
-	//mux := http.NewServeMux()
-	fsHandler := apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))	
-	r.Handle("/app/*", fsHandler)
-	r.Handle("/app", fsHandler)
-	r.Get("/metrics", apiCfg.handlerMetrics)
-	r.Get("/healthz", apiCfg.handlerMetrics)
-	r.Post("/reset", apiCfg.handlerReset)
+	router := chi.NewRouter()
+	fsHandler := apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
+	router.Handle("/app", fsHandler)
+	router.Handle("/app/*", fsHandler)
 
-	corsMux := middlewareCors(r)
+	apiRouter := chi.NewRouter()
+	apiRouter.Get("/healthz", handlerReadiness)
+	apiRouter.Get("/reset", apiCfg.handlerReset)
+	router.Mount("/api", apiRouter)
+
+	adminRouter := chi.NewRouter()	
+	adminRouter.Get("/metrics", apiCfg.handlerMetrics)
+	router.Mount("/admin", adminRouter)
+	corsMux := middlewareCors(router)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
@@ -37,9 +39,8 @@ func main() {
 	}
 
 	log.Printf("Serving files from %s on port: %s\n", filepathRoot, port)
-	log.Fatal(srv.ListenAndServe())	
+	log.Fatal(srv.ListenAndServe())
 }
-
 
 
 	
