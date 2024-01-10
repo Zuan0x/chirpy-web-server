@@ -5,20 +5,23 @@ import (
 	"net/http"
 )
 
+type apiConfig struct {
+	fileserverHits int
+}
+
 func main() {
+const filepathRoot = "./app"
 	const port = "8080"
 
+	apiCfg := apiConfig{
+		fileserverHits: 0,
+	}
+
 	mux := http.NewServeMux()
-	
-	//Serve index.html
-	filepathRoot := "."
-	mux.Handle("/", http.FileServer(http.Dir(filepathRoot)))
-	//Serve healthz, return header`200 OK` if server is running
-	mux.Handle("/healthz", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8") // normal header
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	}))
+	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))))
+	mux.HandleFunc("/healthz", handlerReadiness)
+	mux.HandleFunc("/metrics", apiCfg.handlerMetrics)
+	mux.HandleFunc("/reset", apiCfg.handlerReset)
 
 	corsMux := middlewareCors(mux)
 
@@ -26,7 +29,11 @@ func main() {
 		Addr:    ":" + port,
 		Handler: corsMux,
 	}
-	
-	log.Printf("Serving on port: %s\n", port)
-	log.Fatal(srv.ListenAndServe())
+
+	log.Printf("Serving files from %s on port: %s\n", filepathRoot, port)
+	log.Fatal(srv.ListenAndServe())	
 }
+
+
+
+	
