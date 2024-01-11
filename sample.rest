@@ -1,26 +1,18 @@
-// Examples of some ElasticSearch requests.
-
-#
-# View nodes status
-#
 http://localhost:8080
-GET /admin/metrics
-
-POST /api/chirps
+POST /api/users
 {
-  "body": "I had something interesting for breakfast"
+  "email": "saul@bettercall.com",
+  "password": "123456"
 }
 
-GET /api/chirps
-
-POST /api/chirps
+POST /api/login
 {
-  "body": "What about second breakfast?"
+  "email": "saul@bettercall.com",
+  "password": "123456"
 }
 
-POST /api/chirps
+POST /api/login
 {
-  "body": "Supper? Dinner? Do you know about those?"
+  "email": "saul@bettercall.com",
+  "password": "000011112222"
 }
-
-GET /api/chirps
