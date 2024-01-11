@@ -1,18 +1,2 @@
 http://localhost:8080
-POST /api/users
-{
-  "email": "saul@bettercall.com",
-  "password": "123456"
-}
-
-POST /api/login
-{
-  "email": "saul@bettercall.com",
-  "password": "123456"
-}
-
-POST /api/login
-{
-  "email": "saul@bettercall.com",
-  "password": "000011112222"
-}
+GET /api/chirps
