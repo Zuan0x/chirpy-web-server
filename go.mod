@@ -1,4 +1,4 @@
-module chirpy
+module github.com/Zuan0x/chirpy-web-server
 
 go 1.21.3
 
